@@ -130,7 +130,7 @@ namespace ShipItTest
             catch (InsufficientStockException e)
             {
                 Assert.IsTrue(e.Message.Contains(noStockGtin));
-                Assert.IsTrue(e.Message.Contains("no stock held"));
+                Assert.IsTrue(e.Message.Contains("no stock Held"));
             }
         }
 

@@ -131,6 +131,7 @@
     <Compile Include="Models\ApiModels\AddProductsRequestModel.cs" />
     <Compile Include="Models\ApiModels\OrderLine.cs" />
     <Compile Include="Models\ApiModels\OutboundOrderRequestModel.cs" />
+    <Compile Include="Models\ApiModels\WarehouseStock.cs" />
     <Compile Include="Models\ApiModels\ProductsRequestModel.cs" />
     <Compile Include="Filters\ShipItExceptionFilterAttribute.cs" />
     <Compile Include="Models\ApiModels\DataBaseRoles.cs" />
@@ -154,6 +155,7 @@
     <Compile Include="Models\DataModels\ProductDataModel.cs" />
     <Compile Include="Models\ApiModels\ErrorResponse.cs" />
     <Compile Include="Models\ApiModels\Response.cs" />
+    <Compile Include="Models\DataModels\WarehouseStockDataModel.cs" />
     <Compile Include="Models\DataModels\StockDataModel.cs" />
     <Compile Include="Parsers\EmployeeParser.cs" />
     <Compile Include="Parsers\ProductParser.cs" />

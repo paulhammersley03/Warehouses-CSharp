@@ -75,7 +75,7 @@ namespace ShipIt.Controllers
 
                 if (!stock.ContainsKey(lineItem.ProductId))
                 {
-                    errors.Add(string.Format("Product: {0}, no stock held", orderLine.gtin));
+                    errors.Add(string.Format("Product: {0}, no stock Held", orderLine.gtin));
                     continue;
                 }
 
@@ -83,7 +83,7 @@ namespace ShipIt.Controllers
                 if (lineItem.Quantity > item.held)
                 {
                     errors.Add(
-                        string.Format("Product: {0}, stock held: {1}, stock to remove: {2}", orderLine.gtin, item.held,
+                        string.Format("Product: {0}, stock Held: {1}, stock to remove: {2}", orderLine.gtin, item.held,
                             lineItem.Quantity));
                 }
             }

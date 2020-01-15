@@ -9,7 +9,7 @@ namespace ShipIt.Models.ApiModels
     {
         public Employee OperationsManager { get; set; }
         public int WarehouseId { get; set; }
-        public IEnumerable<OrderSegment> OrderSegments { get; set; }
+        public List<OrderSegment> OrderSegments { get; set; }
     }
 
     public class OrderSegment

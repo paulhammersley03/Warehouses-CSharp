@@ -33,33 +33,31 @@ namespace ShipIt.Controllers
         public InboundOrderResponse Get(int warehouseId)
         {
             log.Info("orderIn for warehouseId: " + warehouseId);
-
             var operationsManager = new Employee(employeeRepository.GetOperationsManager(warehouseId));
 
             log.Debug(String.Format("Found operations manager: {0}", operationsManager));
+            var warehouseHeldItems = stockRepository.GetStockByWarehouseId(warehouseId);//gets warehouseID
 
-            var allStock = stockRepository.GetStockByWarehouseId(warehouseId);
-
+           
             Dictionary<Company, List<InboundOrderLine>> orderlinesByCompany = new Dictionary<Company, List<InboundOrderLine>>();
-            foreach (var stock in allStock)
+            foreach (var item in warehouseHeldItems)
             {
-                Product product = new Product(productRepository.GetProductById(stock.ProductId));
-                if(stock.held < product.LowerThreshold && !product.Discontinued)
+                var warehouseStock = new WarehouseStock(item);
+                
+                if (warehouseStock.Held < warehouseStock.LowerThresh && !warehouseStock.Discontinued)
                 {
-                    Company company = new Company(companyRepository.GetCompany(product.Gcp));
+                    var orderQuantity = Math.Max(item.lowerThresh * 3 - item.held, warehouseStock.MinimumOrderQuantity);
 
-                    var orderQuantity = Math.Max(product.LowerThreshold * 3 - stock.held, product.MinimumOrderQuantity);
-
-                    if (!orderlinesByCompany.ContainsKey(company))
+                    if (!orderlinesByCompany.ContainsKey(warehouseStock.Company))
                     {
-                        orderlinesByCompany.Add(company, new List<InboundOrderLine>());
+                        orderlinesByCompany.Add(warehouseStock.Company, new List<InboundOrderLine>());
                     }
 
-                    orderlinesByCompany[company].Add( 
+                    orderlinesByCompany[warehouseStock.Company].Add(
                         new InboundOrderLine()
                         {
-                            gtin = product.Gtin,
-                            name = product.Name,
+                            gtin = warehouseStock.CompanyId,
+                            name = warehouseStock.ProductName,
                             quantity = orderQuantity
                         });
                 }
@@ -79,7 +77,7 @@ namespace ShipIt.Controllers
             {
                 OperationsManager = operationsManager,
                 WarehouseId = warehouseId,
-                OrderSegments = orderSegments
+                OrderSegments = orderSegments.ToList()
             };
         }
 

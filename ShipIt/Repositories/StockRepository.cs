@@ -13,7 +13,7 @@ namespace ShipIt.Repositories
     {
         int GetTrackedItemsCount();
         int GetStockHeldSum();
-        IEnumerable<StockDataModel> GetStockByWarehouseId(int id);
+        IEnumerable<WarehouseStockDataModel> GetStockByWarehouseId(int id);
         Dictionary<int, StockDataModel> GetStockByWarehouseAndProductIds(int warehouseId, List<int> productIds);
         void RemoveStock(int warehouseId, List<StockAlteration> lineItems);
         void AddStock(int warehouseId, List<StockAlteration> lineItems);
@@ -34,20 +34,35 @@ namespace ShipIt.Repositories
             return (int)QueryForLong(sql);
         }
 
-        public IEnumerable<StockDataModel> GetStockByWarehouseId(int id)
+        public IEnumerable<WarehouseStockDataModel> GetStockByWarehouseId(int id)
         {
-            string sql = "SELECT p_id, hld, w_id FROM stock WHERE w_id = @w_id";
+            string sql = "SELECT * FROM stock JOIN gtin ON stock.p_id = gtin.p_id JOIN gcp ON gtin.gcp_cd = gcp.gcp_cd WHERE w_id = @w_id";
             var parameter = new NpgsqlParameter("@w_id", id);
             string noProductWithIdErrorMessage = string.Format("No stock found with w_id: {0}", id);
             try
             {
-                return base.RunGetQuery(sql, reader => new StockDataModel(reader), noProductWithIdErrorMessage, parameter).ToList();
+                return RunGetQuery(sql, reader => new WarehouseStockDataModel(reader), noProductWithIdErrorMessage, parameter).ToList();
             }
             catch (NoSuchEntityException)
             {
-                return new List<StockDataModel>();
+                return new List<WarehouseStockDataModel>();
             }
         }
+
+        //public IEnumerable<StockDataModel> GetStockByWarehouseId(int id)
+        //{
+        //    string sql = "SELECT p_id, hld, w_id FROM stock WHERE w_id = @w_id";
+        //    var parameter = new NpgsqlParameter("@w_id", id);
+        //    string noProductWithIdErrorMessage = string.Format("No stock found with w_id: {0}", id);
+        //    try
+        //    {
+        //        return base.RunGetQuery(sql, reader => new StockDataModel(reader), noProductWithIdErrorMessage, parameter).ToList();
+        //    }
+        //    catch (NoSuchEntityException)
+        //    {
+        //        return new List<StockDataModel>();
+        //    }
+        //}
 
         public Dictionary<int, StockDataModel> GetStockByWarehouseAndProductIds(int warehouseId, List<int> productIds)
         {
