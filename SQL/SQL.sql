@@ -1,0 +1,3 @@
+ALTER TABLE gcp ADD CONSTRAINT gcp_pkey PRIMARY KEY (gcp_cd)
+
+ALTER TABLE gtin ADD CONSTRAINT gtin_fkey FOREIGN KEY (gcp_cd) REFERENCES gcp (gcp_cd);
