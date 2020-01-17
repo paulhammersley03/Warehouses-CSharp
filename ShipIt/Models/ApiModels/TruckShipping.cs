@@ -8,13 +8,12 @@ namespace ShipIt.Models.ApiModels
 {
     public class TruckShipping
     {
-        public List<int> ProductIds { get; set; }
+        public Dictionary<int, int> ProductQuantityByIds { get; set; }
         public double TruckWeight { get; set; }
-        //double EmptyCapacity { get; set; }
 
-        public TruckShipping(List<int> productIds, double truckWeight)
+        public TruckShipping(Dictionary<int, int> productQuantities, double truckWeight)
         {
-            ProductIds = productIds;
+            ProductQuantityByIds = productQuantities;
             TruckWeight = truckWeight;
         }
     }

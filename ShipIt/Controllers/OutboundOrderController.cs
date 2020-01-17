@@ -53,56 +53,75 @@ namespace ShipIt.Controllers
 
             CheckStockInWarehouse(request.WarehouseId, orderItems);
             stockRepository.RemoveStock(request.WarehouseId, orderItems);
-            
+
             return TruckLoading(orderItems);
         }
 
         public static List<TruckShipping> TruckLoading(List<StockAlteration> orderItems)
         {
-            TruckShipping truck;
-            double truckWeight=0;
-            List<int> productList=new List<int>();
-            List<TruckShipping> truckList=new List<TruckShipping>();
-            
-            foreach(var order in orderItems)
+            double truckWeight = 0;
+            var weightLimit = 2000000;
+            var counter = 0; 
+            Dictionary<int, int> productList = new Dictionary<int, int>();
+            List<TruckShipping> truckList = new List<TruckShipping>();
+            TruckShipping truck = new TruckShipping(productList, truckWeight);
+
+            foreach (var order in orderItems)
             {
-                var productId = order.ProductId;
-                double orderWeight = 0;
-
-                orderWeight = order.Weight * order.Quantity;
-
-                if (orderWeight <= 2000000 - truckWeight)
+                counter = counter + 1;
+                double orderWeight = order.Weight;
+                double remainder = orderWeight;
+                
+                if (order.Weight >= weightLimit)
                 {
-                    for(int i = 1; i <= orderItems.Count; i ++)
+                    while (remainder > 0)
                     {
-                        truckWeight += orderWeight;
-                        productList.Add(productId);
-                        truck = new TruckShipping(productList, truckWeight);
-                        truckList.Add(truck);
+                        productList.Add(order.ProductId, order.Quantity);
+                        truckWeight = weightLimit;
+                        truck = AddTruck(truckList, truck, weightLimit, ref productList, ref truckWeight, ref remainder);
+                    }
+                }
+                else if (orderWeight + truckWeight <= weightLimit)
+                {
+                    productList.Add(order.ProductId, order.Quantity);
+                    truckWeight = truckWeight + order.Weight;
+                    if (counter == orderItems.Count() && truckList.Count() == 0)
+                    {
+                        truck = AddTruck(truckList, truck, weightLimit, ref productList, ref truckWeight, ref remainder);
                     }
 
                 }
-                else if (orderWeight > 2000000)
+                else if (orderWeight + truckWeight > weightLimit)
                 {
-                    for(int i = 1; i <= Math.Round(orderWeight/2000000); i ++)
-                    {
-                        truck = new TruckShipping(productList, truckWeight);
-                        truckList.Add(truck);
-                        productList.Add(productId);
-                        truckWeight = orderWeight / 2000000;
-                        productList = new List<int>();
-                    }
+                    truck = AddTruck(truckList, truck, weightLimit, ref productList, ref truckWeight, ref remainder);
+                    productList.Add(order.ProductId, order.Quantity);
+                    truckWeight = truckWeight + order.Weight;
+                    truck = AddTruck(truckList, truck, weightLimit, ref productList, ref truckWeight, ref remainder);
                 }
-                else
-                {
-                    truck = new TruckShipping(productList, truckWeight);
-                    truckList.Add(truck);
-                    truckWeight = 0;
-                    productList = new List<int>();
-                }
+                
+
+                //if (counter == orderItems.Count() && truckList.Count() == 0)
+                //{
+                //    truck = AddTruck(truckList, truck, weightLimit, ref productList, ref truckWeight, ref remainder);
+                //}
+
             }
             return truckList;
         }
+
+        private static TruckShipping AddTruck(List<TruckShipping> truckList,TruckShipping truck,int weightLimit,ref Dictionary<int, int> productList,ref double truckWeight,ref double remainder)
+        {
+
+            double orderWeight;
+            truckList.Add(truck);
+            truck=new TruckShipping(productList,truckWeight);
+            productList=new Dictionary<int, int>();
+            truckWeight=0;
+            remainder=remainder-weightLimit;
+            orderWeight=remainder;
+            return truck;
+        }
+
         private void CheckStockInWarehouse(int WarehouseId, List<StockAlteration> lineItems)
         {
 

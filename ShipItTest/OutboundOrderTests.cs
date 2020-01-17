@@ -204,7 +204,7 @@ namespace ShipItTest
         }
 
         [TestMethod]
-        public void TestTruckCantBeOverloaded()
+        public void TestTruckCantBeOverLoadedWithOneOrder()
         {
             //ARRANGE
             onSetUp();
@@ -231,7 +231,7 @@ namespace ShipItTest
 
 
         [TestMethod]
-        public void TestDontSendToManyTrucks()
+        public void TestNewTruckForEachOrder()
         {
             //ARRANGE
             onSetUp();
@@ -258,13 +258,116 @@ namespace ShipItTest
 
             //ASSERT
             Assert.AreEqual(2, truckList.Count);
-            Assert.AreEqual(1, truckList[0].ProductIds.Count);
-            Assert.AreEqual(productAID, truckList[0].ProductIds[0]);
-            Assert.AreEqual(1, truckList[1].ProductIds.Count);
-            Assert.AreEqual(productBID, truckList[1].ProductIds[0]);
+            Assert.AreEqual(1, truckList[0].ProductQuantityByIds.Count);
+            Assert.AreEqual(1, truckList[0].ProductQuantityByIds[productA.Id]);
+            Assert.AreEqual(1, truckList[1].ProductQuantityByIds.Count);
+            Assert.AreEqual(1, truckList[1].ProductQuantityByIds[productB.Id]);
         }
 
+        [TestMethod]
+        public void TestMultipleOrdersToSameTruck()
+        {
+            //ARRANGE
+            onSetUp();
+            var productA = AddSampleProduct("0001", 350000.0f, 10);
+            var productB = AddSampleProduct("0002", 350000.0f, 10);
+            var productC = AddSampleProduct("0003", 350000.0f, 10);
+            var productD = AddSampleProduct("0004", 350000.0f, 10);
 
+            var productId = productA.Id;
+            var Gtin = productA.Gtin;
+            var Weight = productA.Weight;
+            var orderItems = new List<StockAlteration>
+            {
+                new StockAlteration(productA.Id, 1, productA.Weight, productA.Gtin),
+                new StockAlteration(productB.Id, 1, productB.Weight, productB.Gtin),
+                new StockAlteration(productC.Id, 1, productC.Weight, productC.Gtin),
+                new StockAlteration(productD.Id, 1, productD.Weight, productD.Gtin)
+            };
 
+            //Act
+            var truckList = OutboundOrderController.TruckLoading(orderItems);
+
+            //ASSERT
+            Assert.AreEqual(1, truckList.Count);
+            Assert.AreEqual(4, truckList[0].ProductQuantityByIds.Count);
+
+            Assert.AreEqual(1, truckList[0].ProductQuantityByIds[productA.Id]);
+            Assert.AreEqual(1, truckList[0].ProductQuantityByIds[productB.Id]);
+            Assert.AreEqual(1, truckList[0].ProductQuantityByIds[productC.Id]);
+            Assert.AreEqual(1, truckList[0].ProductQuantityByIds[productD.Id]);
+        }
+
+        [TestMethod]
+        public void TestPartiallyFilledTruck()
+        {
+            //ARRANGE
+            onSetUp();
+            var productA = AddSampleProduct("0001", 350000.0f, 10);
+            var productB = AddSampleProduct("0002", 350000.0f, 10);
+            var productC = AddSampleProduct("0003", 350000.0f, 10);
+            var productD = AddSampleProduct("0004", 350000.0f, 10);
+            var productE = AddSampleProduct("0005", 601000.0f, 10);
+
+            var productId = productA.Id;
+            var Gtin = productA.Gtin;
+            var Weight = productA.Weight;
+            var orderItems = new List<StockAlteration>
+            {
+                new StockAlteration(productA.Id, 1, productA.Weight, productA.Gtin),
+                new StockAlteration(productB.Id, 1, productB.Weight, productB.Gtin),
+                new StockAlteration(productC.Id, 1, productC.Weight, productC.Gtin),
+                new StockAlteration(productD.Id, 1, productD.Weight, productD.Gtin),
+                new StockAlteration(productE.Id, 1, productE.Weight, productE.Gtin)
+            };
+
+            //Act
+            var truckList = OutboundOrderController.TruckLoading(orderItems);
+
+            //ASSERT
+            Assert.AreEqual(2, truckList.Count);
+        }
+
+        [TestMethod]
+        public void TestProductNotSplitUneccessarily()
+        {
+            //ARRANGE
+            onSetUp();
+            var productA = AddSampleProduct("0001", 1000.0f, 10);
+            var productB = AddSampleProduct("0002", 1000.0f, 10);
+
+            var productId = productA.Id;
+            var Gtin = productA.Gtin;
+            var Weight = productA.Weight;
+            var orderItems = new List<StockAlteration>
+            {
+                new StockAlteration(productA.Id, 1000, productA.Weight, productA.Gtin),
+                new StockAlteration(productB.Id, 1999, productB.Weight, productB.Gtin)
+            };
+
+            //Act
+            var truckList = OutboundOrderController.TruckLoading(orderItems);
+
+            //ASSERT
+            Assert.AreEqual(2, truckList.Count);
+            Assert.AreEqual(1, truckList[0].ProductQuantityByIds.Count);
+            Assert.AreEqual(1, truckList[1].ProductQuantityByIds.Count);
+        }
+
+        private Product AddSampleProduct(string gtin, float weight, int quantity)
+        {
+
+            var productToCreate=new ProductBuilder().setGtin(gtin).setWeight(weight).CreateProductDatabaseModel();
+            productRepository.AddProducts(new List<ProductDataModel>()
+            {
+                productToCreate
+            });
+            var product =new Product(productRepository.GetProductByGtin(gtin));
+            stockRepository.AddStock(WAREHOUSE_ID,new List<StockAlteration>()
+            {
+                new StockAlteration(product.Id,quantity,product.Weight,product.Gtin)
+            });
+            return product;
+        }
     }
 }

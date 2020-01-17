@@ -17,7 +17,7 @@ namespace ShipIt.Models.ApiModels
         {
             this.ProductId = productId;
             this.Quantity = quantity;
-            this.Weight = m_g;
+            this.Weight = m_g * quantity;
             this.Gtin = gtin;
 
             if (quantity < 0)
