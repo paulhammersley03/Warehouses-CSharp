@@ -19,7 +19,7 @@ namespace ShipItTest
 
         private const string GTIN = "0000";
 
-        public new void onSetUp()
+        public new void OnSetUp()
         {
             base.onSetUp();
             companyRepository.AddCompanies(new List<Company>() { new CompanyBuilder().CreateCompany() });
@@ -29,10 +29,10 @@ namespace ShipItTest
         [TestMethod]
         public void TestAddNewStock()
         {
-            onSetUp();
+            OnSetUp();
             var productId = productRepository.GetProductByGtin(GTIN).Id;
 
-            stockRepository.AddStock(1, new List<StockAlteration>(){new StockAlteration(productId, 1)});
+            stockRepository.AddStock(1, new List<StockAlteration>(){new StockAlteration(productId, 1, 0, GTIN) });
 
             var databaseStock = stockRepository.GetStockByWarehouseAndProductIds(1, new List<int>(){productId});
             Assert.AreEqual(databaseStock[productId].held, 1);
@@ -41,11 +41,11 @@ namespace ShipItTest
         [TestMethod]
         public void TestUpdateExistingStock()
         {
-            onSetUp();
+            OnSetUp();
             var productId = productRepository.GetProductByGtin(GTIN).Id;
-            stockRepository.AddStock(1, new List<StockAlteration>() { new StockAlteration(productId, 2) });
+            stockRepository.AddStock(1, new List<StockAlteration>() { new StockAlteration(productId, 2, 0, GTIN) });
 
-            stockRepository.AddStock(1, new List<StockAlteration>() { new StockAlteration(productId, 5) });
+            stockRepository.AddStock(1, new List<StockAlteration>() { new StockAlteration(productId, 5, 0, GTIN) });
 
             var databaseStock = stockRepository.GetStockByWarehouseAndProductIds(1, new List<int>() { productId });
             Assert.AreEqual(databaseStock[productId].held, 7);

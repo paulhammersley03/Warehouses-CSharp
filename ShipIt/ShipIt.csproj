@@ -129,6 +129,8 @@
     <Compile Include="Models\ApiModels\AddCompaniesRequest.cs" />
     <Compile Include="Models\ApiModels\AddEmployeesRequest.cs" />
     <Compile Include="Models\ApiModels\AddProductsRequestModel.cs" />
+    <Compile Include="Models\ApiModels\TruckShipping.cs" />
+    <Compile Include="Models\ApiModels\ShippingOrderById.cs" />
     <Compile Include="Models\ApiModels\OrderLine.cs" />
     <Compile Include="Models\ApiModels\OutboundOrderRequestModel.cs" />
     <Compile Include="Models\ApiModels\WarehouseStock.cs" />

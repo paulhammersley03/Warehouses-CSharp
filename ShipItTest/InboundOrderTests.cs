@@ -37,7 +37,7 @@ namespace ShipItTest
         private int productId;
         private const string GTIN = "0000";
 
-        public new void onSetUp()
+        public new void OnSetUp()
         {
             base.onSetUp();
             employeeRepository.AddEmployees(new List<Employee>() { OPS_MANAGER });
@@ -51,7 +51,7 @@ namespace ShipItTest
         [TestMethod]
         public void TestCreateOrderNoProductsHeld()
         {
-            onSetUp();
+            OnSetUp();
 
             var inboundOrder = inboundOrderController.Get(WAREHOUSE_ID);
 
@@ -63,8 +63,8 @@ namespace ShipItTest
         [TestMethod]
         public void TestCreateOrderProductHoldingNoStock()
         {
-            onSetUp();
-            stockRepository.AddStock(WAREHOUSE_ID, new List<StockAlteration>() { new StockAlteration(productId, 0) });
+            OnSetUp();
+            stockRepository.AddStock(WAREHOUSE_ID, new List<StockAlteration>() { new StockAlteration(productId, 0, 0, product.Gtin) });
 
             var inboundOrder = inboundOrderController.Get(WAREHOUSE_ID);
 
@@ -76,8 +76,8 @@ namespace ShipItTest
         [TestMethod]
         public void TestCreateOrderProductHoldingSufficientStock()
         {
-            onSetUp();
-            stockRepository.AddStock(WAREHOUSE_ID, new List<StockAlteration>() { new StockAlteration(productId, product.LowerThreshold) });
+            OnSetUp();
+            stockRepository.AddStock(WAREHOUSE_ID, new List<StockAlteration>() { new StockAlteration(productId, product.LowerThreshold, 0, product.Gtin) });
 
             var inboundOrder = inboundOrderController.Get(WAREHOUSE_ID);
 
@@ -87,8 +87,8 @@ namespace ShipItTest
         [TestMethod]
         public void TestCreateOrderDiscontinuedProduct()
         {
-            onSetUp();
-            stockRepository.AddStock(WAREHOUSE_ID, new List<StockAlteration>() { new StockAlteration(productId, product.LowerThreshold - 1) });
+            OnSetUp();
+            stockRepository.AddStock(WAREHOUSE_ID, new List<StockAlteration>() { new StockAlteration(productId, product.LowerThreshold - 1, 0, product.Gtin) });
             productRepository.DiscontinueProductByGtin(GTIN);
 
             var inboundOrder = inboundOrderController.Get(WAREHOUSE_ID);
@@ -99,7 +99,7 @@ namespace ShipItTest
         [TestMethod]
         public void TestProcessManifest()
         {
-            onSetUp();
+            OnSetUp();
             var quantity = 12;
             var inboundManifest = new InboundManifestRequestModel()
             {
@@ -124,7 +124,7 @@ namespace ShipItTest
         [TestMethod]
         public void TestProcessManifestRejectsDodgyGcp()
         {
-            onSetUp();
+            OnSetUp();
             var quantity = 12;
             var dodgyGcp = GCP + "XYZ";
             var inboundManifest = new InboundManifestRequestModel()
@@ -155,7 +155,7 @@ namespace ShipItTest
         [TestMethod]
         public void TestProcessManifestRejectsUnknownProduct()
         {
-            onSetUp();
+            OnSetUp();
             var quantity = 12;
             var unknownGtin = GTIN + "XYZ";
             var inboundManifest = new InboundManifestRequestModel()
@@ -191,7 +191,7 @@ namespace ShipItTest
         [TestMethod]
         public void TestProcessManifestRejectsDuplicateGtins()
         {
-            onSetUp();
+            OnSetUp();
             var quantity = 12;
             var inboundManifest = new InboundManifestRequestModel()
             {

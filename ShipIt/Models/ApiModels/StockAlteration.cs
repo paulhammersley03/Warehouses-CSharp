@@ -9,12 +9,16 @@ namespace ShipIt.Models.ApiModels
     public class StockAlteration
     {
         public int ProductId { get; set; }
+        public string Gtin { get; set; }
+        public double Weight { get; set; }
         public int Quantity { get; set; }
 
-        public StockAlteration(int productId, int quantity)
+        public StockAlteration(int productId, int quantity, double m_g, string gtin)
         {
             this.ProductId = productId;
             this.Quantity = quantity;
+            this.Weight = m_g;
+            this.Gtin = gtin;
 
             if (quantity < 0)
             {

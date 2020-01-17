@@ -41,7 +41,6 @@ namespace ShipIt.Models.DataModels
         [DatabaseColumnName("contact_mail")]
         public string Mail { get; set; }
 
-
         public WarehouseStockDataModel(IDataReader dataReader): base(dataReader) { }
     }
 }

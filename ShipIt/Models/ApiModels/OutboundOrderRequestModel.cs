@@ -8,8 +8,8 @@ namespace ShipIt.Models.ApiModels
 {
     public class OutboundOrderRequestModel
     {
-        public int WarehouseId { get; set; }
-        public IEnumerable<OrderLine> OrderLines { get; set; }
+        public int WarehouseId { get; set; }//warehouse id
+        public List<OrderLine> OrderLines { get; set; }//IEnumerable of strings eg: snickers, 500, barcode, weight
 
         public override String ToString()
         {

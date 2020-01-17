@@ -34,10 +34,10 @@ namespace ShipIt.Controllers
         {
             log.Info("orderIn for warehouseId: " + warehouseId);
             var operationsManager = new Employee(employeeRepository.GetOperationsManager(warehouseId));
-
+            //date time log before
             log.Debug(String.Format("Found operations manager: {0}", operationsManager));
             var warehouseHeldItems = stockRepository.GetStockByWarehouseId(warehouseId);//gets warehouseID
-
+            //datetime after
            
             Dictionary<Company, List<InboundOrderLine>> orderlinesByCompany = new Dictionary<Company, List<InboundOrderLine>>();
             foreach (var item in warehouseHeldItems)
@@ -120,7 +120,7 @@ namespace ShipIt.Controllers
                 }
                 else
                 {
-                    lineItems.Add(new StockAlteration(product.Id, orderLine.quantity));
+                    lineItems.Add(new StockAlteration(product.Id, orderLine.quantity, product.Weight ,product.Gtin));
                 }
             }
 
